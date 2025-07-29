@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0.x' # Ensure this matches your project's target framework (e.g., '8.0.x', '7.0.x')
+        dotnet-version: '9.0.x' # Ensure this matches your project's target framework (e.g., '8.0.x')
 
     - name: Restore dependencies
       run: dotnet restore
@@ -26,18 +26,17 @@ jobs:
       run: dotnet publish -c Release -o publish-output --nologo /p:GITHUB_PAGES=true
 
     - name: Change base-href in index.html
-      # Now, index.html is directly in 'publish-output/wwwroot'
+      # The index.html is actually located inside 'publish-output/wwwroot/{YourProjectName}/'
       run: |
-        sed -i 's|<base href="/" />|<base href="/Mathletes-Companion.Client/" />|g' publish-output/wwwroot/index.html
+        sed -i 's|<base href="/" />|<base href="/Mathletes-Companion/" />|g' publish-output/wwwroot/Mathletes-Companion/index.html
         # IMPORTANT: Replace /Mathletes-Companion.Client/ with your exact GitHub repository name!
-        # Example: If your repo is named 'my-math-app', it would be <base href="/my-math-app/" />
-        # Note: I've switched the sed delimiter to '|' to avoid issues with '/' in the path.
+        # And confirm 'Mathletes-Companion.Client' after 'wwwroot/' also matches your actual project name.
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        # The directory to publish is now 'publish-output/wwwroot'
-        publish_dir: ./publish-output/wwwroot
+        # The directory to publish is now 'publish-output/wwwroot/{YourProjectName}'
+        publish_dir: ./publish-output/wwwroot/Mathletes-Companion
         # cname: yourdomain.com # Uncomment and replace with your custom domain if you have one
                                 # Otherwise, keep it commented out
