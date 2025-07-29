@@ -1,3 +1,10 @@
+name: Deploy Blazor WebAssembly to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Or 'master', depending on your default branch
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -9,7 +16,7 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0.x' # Or your specific .NET SDK version
+        dotnet-version: '9.0.x' # Ensure this matches your project's target framework (e.g., '8.0.x', '7.0.x')
 
     - name: Restore dependencies
       run: dotnet restore
@@ -21,8 +28,10 @@ jobs:
     - name: Change base-href in index.html
       # Now, index.html is directly in 'publish-output/wwwroot'
       run: |
-        sed -i 's/<base href="\/" \/>/<base href="\/Mathletes-Companion.Client\/" \/>/g' publish-output/wwwroot/index.html
+        sed -i 's|<base href="/" />|<base href="/Mathletes-Companion.Client/" />|g' publish-output/wwwroot/index.html
         # IMPORTANT: Replace /Mathletes-Companion.Client/ with your exact GitHub repository name!
+        # Example: If your repo is named 'my-math-app', it would be <base href="/my-math-app/" />
+        # Note: I've switched the sed delimiter to '|' to avoid issues with '/' in the path.
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -30,4 +39,5 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         # The directory to publish is now 'publish-output/wwwroot'
         publish_dir: ./publish-output/wwwroot
-        # cname: yourdomain.com
+        # cname: yourdomain.com # Uncomment and replace with your custom domain if you have one
+                                # Otherwise, keep it commented out
