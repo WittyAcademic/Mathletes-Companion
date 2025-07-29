@@ -1,0 +1,38 @@
+name: Deploy Blazor WebAssembly to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Or 'master', depending on your default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x' # Ensure this matches your project's target framework
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Publish Blazor WebAssembly App
+      run: dotnet publish -c Release -o release/wwwroot --nologo /p:GITHUB_PAGES=true
+
+    - name: Change base-href in index.html
+      run: |
+        sed -i 's/<base href="\/" \/>/<base href="\/Mathletes-Companion\/" \/>/g' release/wwwroot/index.html
+        # IMPORTANT: Replace /YOUR_REPO_NAME/ with your actual GitHub repository name (e.g., /MyMathSite/)
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./release/wwwroot
+        # cname: yourdomain.com # Uncomment and replace with your custom domain if you have one
+                                # Otherwise, keep it commented out
